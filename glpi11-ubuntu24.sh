@@ -22,10 +22,10 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 
 # make sure we start patched
-apt update && apt upgrade
+apt-get update && apt-get dist-upgrade -y
 
 # pre-reqs
-apt install -y apache2 \
+apt install -y --no-install-recommends apache2 curl jq \
     php \
 	php-{apcu,cli,common,curl,gd,imap,ldap,mysql,xmlrpc,xml,mbstring,bcmath,intl,zip,redis,bz2} \
 	libapache2-mod-php \
@@ -65,9 +65,10 @@ mysql -e "GRANT SELECT ON mysql.time_zone_name TO 'glpi'@'localhost'"
 mysql -e "FLUSH PRIVILEGES;"
 
 # installing the glpi web app
+DOWNLOAD_URL=$(curl -s https://api.github.com/repos/glpi-project/glpi/releases/latest | jq -r '.assets[0].browser_download_url')
 cd /var/www/html
-wget https://github.com/glpi-project/glpi/releases/download/11.0.4/glpi-11.0.4.tgz
-tar -xvzf glpi-11.0.4.tgz
+wget $DOWNLOAD_URL
+tar -xvzf glpi-*
 
 # downstream
 cat << 'EOF' > /var/www/html/glpi/inc/downstream.php
